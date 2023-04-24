@@ -3,6 +3,7 @@ import os
 import time
 import random
 
+pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Arkanoid")
 #Game constants:
@@ -12,6 +13,9 @@ PLAYER_WIDTH, PLAYER_HEIGHT = 80, 20
 BRICK_WIDTH, BRICK_HEIGHT = 60, 20
 BALL_WIDTH, BALL_HEIGHT = 20,20
 PLAYER_VEL = 10
+GAME_OBJ = []
+score = 0
+main_font = pygame.font.SysFont("Comicsans", 20)
 #Game images
 BG = pygame.transform.scale(pygame.image.load(os.path.join("data", "background.jpg")), (WIDTH,HEIGHT))
 PLAYER = pygame.transform.scale(pygame.image.load(os.path.join("data", "player.png")),(PLAYER_WIDTH,PLAYER_HEIGHT))
@@ -37,17 +41,33 @@ class Ball:
         self.y = y
         self.ball_img = BALL
         self.mask = pygame.mask.from_surface(self.ball_img)
-        self.ball_vel_x = 3
-        self.ball_vel_y = 4
+        self.ball_vel_x = 4
+        self.ball_vel_y = 5
+        self.points = 0
+
     def draw(self, window):
         window.blit(self.ball_img, (self.x, self.y))
+
     def update_position(self):
+
         self.x += self.ball_vel_x
         self.y += self.ball_vel_y
+
         if self.x < 0 or self.x > WIDTH - BALL_WIDTH:
             self.ball_vel_x = -self.ball_vel_x
         if self.y < 0 or self.y > HEIGHT - BALL_HEIGHT:
             self.ball_vel_y = -self.ball_vel_y
+
+        for obj in GAME_OBJ:
+            if collide(self, obj):
+                if isinstance(obj, Brick):
+                    GAME_OBJ.remove(obj)
+                    self.points += 10
+                    self.ball_vel_y = -self.ball_vel_y
+                elif isinstance(obj, Player):
+                    self.ball_vel_y = -self.ball_vel_y
+                    self.ball_vel_x = (self.x - obj.x) / (PLAYER_WIDTH / 2)
+
 
 
 class Brick:
@@ -72,7 +92,7 @@ class BrickPanel:
     def create_bricks(self):
         bricks = []
         x_gap = 40
-        y_gap = 25
+        y_gap = 30
         for row in range(self.brick_rows):
             for col in range(self.brick_columns):
                 x = col * self.brick_width + x_gap
@@ -84,25 +104,44 @@ class BrickPanel:
     def draw(self, window):
         for brick in self.bricks:
             brick.draw(window)
+        
+def collide(obj1, obj2):
+    offset_x = obj2.x - obj1.x
+    offset_y = obj2.y - obj1.y
+    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 def main():
     running = True
     player = Player(300,550)
     brick_panel = BrickPanel()
     ball = Ball(400, 300)
+    bricks = brick_panel.bricks
+
+    GAME_OBJ.extend(bricks)
+    GAME_OBJ.append(player)
+    GAME_OBJ.append(ball)
+
+    
 
     def redraw_window():
         screen.blit(BG, (0,0))
-        player.draw(screen)
-        brick_panel.draw(screen)
-        ball.draw(screen)
+        
+        points_label = main_font.render(f"Points: {ball.points}", 1, (255,255,255))
+        screen.blit(points_label, (0,5))
+        
+        for obj in GAME_OBJ:
+            obj.draw(screen)
+
+        ball.update_position()
         pygame.display.update()
         
 
     while running:
         clock.tick(FPS)
+        if len(GAME_OBJ) == 2:
+            running = False
         redraw_window()
-        ball.update_position()
+    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -112,7 +151,8 @@ def main():
             player.x -= PLAYER_VEL
         if keys[pygame.K_d] and player.x < WIDTH - PLAYER_WIDTH:
             player.x += PLAYER_VEL
-        
+        if ball.y == HEIGHT - BALL_HEIGHT:
+            break
         
 
 main()
