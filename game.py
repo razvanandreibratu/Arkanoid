@@ -14,7 +14,6 @@ BRICK_WIDTH, BRICK_HEIGHT = 60, 20
 BALL_WIDTH, BALL_HEIGHT = 20,20
 PLAYER_VEL = 10
 GAME_OBJ = []
-score = 0
 main_font = pygame.font.SysFont("Comicsans", 20)
 #Game images
 BG = pygame.transform.scale(pygame.image.load(os.path.join("data", "background.jpg")), (WIDTH,HEIGHT))
@@ -44,12 +43,14 @@ class Ball:
         self.ball_vel_x = 4
         self.ball_vel_y = 5
         self.points = 0
+        self.started = False
 
     def draw(self, window):
         window.blit(self.ball_img, (self.x, self.y))
 
     def update_position(self):
-
+        if not self.started:
+            return
         self.x += self.ball_vel_x
         self.y += self.ball_vel_y
 
@@ -112,26 +113,24 @@ def collide(obj1, obj2):
 
 def main():
     running = True
-    player = Player(300,550)
+    player = Player(300, 550)
     brick_panel = BrickPanel()
-    ball = Ball(400, 300)
+    ball = Ball(330, 530)
     bricks = brick_panel.bricks
 
     GAME_OBJ.extend(bricks)
     GAME_OBJ.append(player)
     GAME_OBJ.append(ball)
 
-    
-
     def redraw_window():
         screen.blit(BG, (0,0))
         
         points_label = main_font.render(f"Points: {ball.points}", 1, (255,255,255))
-        screen.blit(points_label, (0,5))
-        
+        screen.blit(points_label, (5,0))
+        lives_label = main_font.render(f"Lives: {player.lives}", 1, (255,255,255))
+        screen.blit(lives_label, (720, 0))
         for obj in GAME_OBJ:
             obj.draw(screen)
-
         ball.update_position()
         pygame.display.update()
         
@@ -149,10 +148,20 @@ def main():
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a] and player.x > 0:
             player.x -= PLAYER_VEL
+            if not ball.started:
+                ball.x -= PLAYER_VEL
         if keys[pygame.K_d] and player.x < WIDTH - PLAYER_WIDTH:
             player.x += PLAYER_VEL
+            if not ball.started:
+                ball.x += PLAYER_VEL
+        if keys[pygame.K_SPACE]:
+            ball.started = True
+
+        #LOSING GAME LOGIC
         if ball.y == HEIGHT - BALL_HEIGHT:
-            break
+            player.lives -= 1
+        if player.lives == 0:
+            running = False
         
 
 main()
