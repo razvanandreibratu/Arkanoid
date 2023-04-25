@@ -18,7 +18,12 @@ main_font = pygame.font.SysFont("Comicsans", 20)
 #Game images
 BG = pygame.transform.scale(pygame.image.load(os.path.join("data", "background.jpg")), (WIDTH,HEIGHT))
 PLAYER = pygame.transform.scale(pygame.image.load(os.path.join("data", "player.png")),(PLAYER_WIDTH,PLAYER_HEIGHT))
-BRICK = pygame.transform.scale(pygame.image.load(os.path.join("data", "purple_brick.png")),(BRICK_WIDTH, BRICK_HEIGHT))
+#Bricks in game
+PURPLE_BRICK = pygame.transform.scale(pygame.image.load(os.path.join("data", "purplebrick.png")),(BRICK_WIDTH, BRICK_HEIGHT))
+GREEN_BRICK = pygame.transform.scale(pygame.image.load(os.path.join("data", "greenbrick.png")),(BRICK_WIDTH, BRICK_HEIGHT))
+ORANGE_BRICK = pygame.transform.scale(pygame.image.load(os.path.join("data", "orangebrick.png")),(BRICK_WIDTH, BRICK_HEIGHT))
+RED_BRICK = pygame.transform.scale(pygame.image.load(os.path.join("data", "redbrick.png")),(BRICK_WIDTH, BRICK_HEIGHT))
+#Ball
 BALL = pygame.transform.scale(pygame.image.load(os.path.join("data", "ball.png")), (BALL_WIDTH, BALL_HEIGHT))
 #Game BG and TICK rate
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -76,14 +81,39 @@ class Brick:
         self.x = x
         self.y = y
         self.points = points
-        self.brick_img = BRICK
-        self.mask = pygame.mask.from_surface(self.brick_img)
+        self.brick_img = None
+        self.mask = None
     
     def draw(self, window):
         window.blit(self.brick_img, (self.x, self.y))
 
     def hit(self):
         return self.points
+    
+class PurpleBrick(Brick):
+    def __init__(self, x, y, points):
+        super().__init__(x, y, points)
+        self.brick_img = PURPLE_BRICK
+        self.mask = pygame.mask.from_surface(self.brick_img)
+
+class RedBrick(Brick):
+    def __init__(self, x, y, points):
+        super().__init__(x, y, points)
+        self.brick_img = RED_BRICK
+        self.mask = pygame.mask.from_surface(self.brick_img)
+
+class OrangeBrick(Brick):
+    def __init__(self, x, y, points):
+        super().__init__(x, y, points)
+        self.brick_img = ORANGE_BRICK
+        self.mask = pygame.mask.from_surface(self.brick_img)
+
+class GreenBrick(Brick):
+    def __init__(self, x, y, points):
+        super().__init__(x, y, points)
+        self.brick_img = GREEN_BRICK
+        self.mask = pygame.mask.from_surface(self.brick_img)
+
 
 class BrickPanel:
     def __init__(self, brick_width=60, brick_height=20, brick_rows=5, brick_columns=12):
@@ -101,7 +131,16 @@ class BrickPanel:
             for col in range(self.brick_columns):
                 x = col * self.brick_width + x_gap
                 y = row * self.brick_height + y_gap
-                brick = Brick(x, y, random.randint(10,100))
+                color = random.choice(['green', 'purple', 'red', 'orange'])
+                points = random.randint(10, 100)
+                if color == 'green':
+                    brick = GreenBrick(x, y, points)
+                elif color == 'purple':
+                    brick = PurpleBrick(x, y, points)
+                elif color == 'red':
+                    brick = RedBrick(x, y, points)
+                elif color == 'orange':
+                    brick = OrangeBrick(x, y, points)
                 bricks.append(brick)
         return bricks
     
