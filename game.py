@@ -30,7 +30,7 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 
 class Player:
-    def __init__(self, x, y, lives = 1):
+    def __init__(self, x, y, lives = 2):
         self.x = x
         self.y = y
         self.lives = lives
@@ -74,8 +74,6 @@ class Ball:
                     self.ball_vel_y = -self.ball_vel_y
                     self.ball_vel_x = (self.x - obj.x) / (PLAYER_WIDTH / 2)
 
-
-
 class Brick:
     def __init__(self, x, y, points):
         self.x = x
@@ -83,10 +81,8 @@ class Brick:
         self.points = points
         self.brick_img = None
         self.mask = None
-    
     def draw(self, window):
         window.blit(self.brick_img, (self.x, self.y))
-
     def hit(self):
         return self.points
     
@@ -113,52 +109,40 @@ class GreenBrick(Brick):
         super().__init__(x, y, points)
         self.brick_img = GREEN_BRICK
         self.mask = pygame.mask.from_surface(self.brick_img)
-
-
-class BrickPanel:
-    def __init__(self, brick_width=60, brick_height=20, brick_rows=5, brick_columns=12):
-        self.brick_width = brick_width
-        self.brick_height = brick_height
-        self.brick_rows = brick_rows
-        self.brick_columns = brick_columns
-        self.bricks = self.create_bricks()
-
-    def create_bricks(self):
-        bricks = []
-        x_gap = 40
-        y_gap = 30
-        for row in range(self.brick_rows):
-            for col in range(self.brick_columns):
-                x = col * self.brick_width + x_gap
-                y = row * self.brick_height + y_gap
-                color = random.choice(['green', 'purple', 'red', 'orange'])
-                points = random.randint(10, 100)
-                if color == 'green':
-                    brick = GreenBrick(x, y, points)
-                elif color == 'purple':
-                    brick = PurpleBrick(x, y, points)
-                elif color == 'red':
-                    brick = RedBrick(x, y, points)
-                elif color == 'orange':
-                    brick = OrangeBrick(x, y, points)
-                bricks.append(brick)
-        return bricks
-    
-    def draw(self, window):
-        for brick in self.bricks:
-            brick.draw(window)
-        
+   
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
+def create_bricks():
+    bricks = []
+    brick_rows = 5
+    brick_columns = 12
+    x_gap = 40
+    y_gap = 30
+    for row in range(brick_rows):
+        for col in range(brick_columns):
+            x = col * BRICK_WIDTH + x_gap
+            y = row * BRICK_HEIGHT + y_gap
+            color = random.choice(['green', 'purple', 'red', 'orange'])
+            points = random.randint(10, 100)
+            if color == 'green':
+                brick = GreenBrick(x, y, points)
+            elif color == 'purple':
+                brick = PurpleBrick(x, y, points)
+            elif color == 'red':
+                brick = RedBrick(x, y, points)
+            elif color == 'orange':
+                brick = OrangeBrick(x, y, points)
+            bricks.append(brick)
+    return bricks
+
 def main():
     running = True
     player = Player(300, 550)
-    brick_panel = BrickPanel()
     ball = Ball(330, 530)
-    bricks = brick_panel.bricks
+    bricks = create_bricks()
 
     GAME_OBJ.extend(bricks)
     GAME_OBJ.append(player)
@@ -202,8 +186,11 @@ def main():
         #LOSING GAME LOGIC
         if ball.y == HEIGHT - BALL_HEIGHT:
             player.lives -= 1
-        if player.lives == 0:
-            running = False
+            if player.lives == 0:
+                running = False
+            ball.started = False
+            ball.y = player.y - 20
+            ball.x = player.x + 30
         
 
 main()
