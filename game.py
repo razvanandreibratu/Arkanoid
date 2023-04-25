@@ -29,6 +29,7 @@ BALL = pygame.transform.scale(pygame.image.load(os.path.join("data", "ball.png")
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
 
+#Game classes 
 class Player:
     def __init__(self, x, y, lives = 2):
         self.x = x
@@ -109,7 +110,8 @@ class GreenBrick(Brick):
         super().__init__(x, y, points)
         self.brick_img = GREEN_BRICK
         self.mask = pygame.mask.from_surface(self.brick_img)
-   
+
+#Game methods  
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
@@ -138,6 +140,7 @@ def create_bricks():
             bricks.append(brick)
     return bricks
 
+#Game main functions
 def main():
     running = True
     player = Player(300, 550)
