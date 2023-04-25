@@ -63,7 +63,7 @@ class Ball:
             if collide(self, obj):
                 if isinstance(obj, Brick):
                     GAME_OBJ.remove(obj)
-                    self.points += 10
+                    self.points += obj.hit()
                     self.ball_vel_y = -self.ball_vel_y
                 elif isinstance(obj, Player):
                     self.ball_vel_y = -self.ball_vel_y
@@ -72,15 +72,18 @@ class Ball:
 
 
 class Brick:
-    def __init__(self, x, y, lives = 1):
+    def __init__(self, x, y, points):
         self.x = x
         self.y = y
-        self.lives = lives
+        self.points = points
         self.brick_img = BRICK
         self.mask = pygame.mask.from_surface(self.brick_img)
     
     def draw(self, window):
         window.blit(self.brick_img, (self.x, self.y))
+
+    def hit(self):
+        return self.points
 
 class BrickPanel:
     def __init__(self, brick_width=60, brick_height=20, brick_rows=5, brick_columns=12):
@@ -98,7 +101,7 @@ class BrickPanel:
             for col in range(self.brick_columns):
                 x = col * self.brick_width + x_gap
                 y = row * self.brick_height + y_gap
-                brick = Brick(x, y)
+                brick = Brick(x, y, random.randint(10,100))
                 bricks.append(brick)
         return bricks
     
