@@ -14,6 +14,9 @@ BRICK_WIDTH, BRICK_HEIGHT = 60, 20
 BALL_WIDTH, BALL_HEIGHT = 20,20
 PLAYER_VEL = 10
 GAME_OBJ = []
+#Color constants
+WHITE = (255,255,255)
+#Game font
 main_font = pygame.font.SysFont("Comicsans", 20)
 #Game images
 BG = pygame.transform.scale(pygame.image.load(os.path.join("data", "background.jpg")), (WIDTH,HEIGHT))
@@ -74,6 +77,8 @@ class Ball:
                 elif isinstance(obj, Player):
                     self.ball_vel_y = -self.ball_vel_y
                     self.ball_vel_x = (self.x - obj.x) / (PLAYER_WIDTH / 2)
+    def get_points(self):
+        return self.points
 
 class Brick:
     def __init__(self, x, y, points):
@@ -116,7 +121,7 @@ def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
-
+#Generate first level
 def create_bricks():
     bricks = []
     brick_rows = 5
@@ -139,6 +144,41 @@ def create_bricks():
                 brick = OrangeBrick(x, y, points)
             bricks.append(brick)
     return bricks
+#Game menus
+#TODO main menu
+def main_menu():
+    return
+#TODO pause menu 
+def pause_menu(points):
+    game_pause = True
+    pause_font = pygame.font.SysFont("Comicsans", 50)
+    def draw():
+       screen.blit(BG,(0,0))
+       pause_label_points = pause_font.render(f"POINTS: {points}", 1, WHITE)
+       screen.blit(pause_label_points, (250,100))       
+       pause_label_continue = pause_font.render("Press space to continue...", 1, WHITE)
+       screen.blit(pause_label_continue, (100, 220))
+       pause_label_exit = pause_font.render("Exit", 1, WHITE)
+       screen.blit(pause_label_exit, (330,400))
+       pygame.display.update()
+    while game_pause:
+        draw()
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_pause = False
+                return game_pause
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_pause = False
+                    return True
+
+#TODO losing screen and points
+def losing_menu():
+    return
+#TODO handling winning action
+def winner():
+    return
 
 #Game main functions
 def main():
@@ -153,11 +193,12 @@ def main():
 
     def redraw_window():
         screen.blit(BG, (0,0))
-        
-        points_label = main_font.render(f"Points: {ball.points}", 1, (255,255,255))
+
+        points_label = main_font.render(f"Points: {ball.points}", 1, WHITE)
         screen.blit(points_label, (5,0))
-        lives_label = main_font.render(f"Lives: {player.lives}", 1, (255,255,255))
+        lives_label = main_font.render(f"Lives: {player.lives}", 1, WHITE)
         screen.blit(lives_label, (720, 0))
+
         for obj in GAME_OBJ:
             obj.draw(screen)
         ball.update_position()
@@ -185,15 +226,22 @@ def main():
                 ball.x += PLAYER_VEL
         if keys[pygame.K_SPACE]:
             ball.started = True
+        if keys[pygame.K_p]:
+            running = pause_menu(ball.get_points())
 
         #LOSING GAME LOGIC
         if ball.y == HEIGHT - BALL_HEIGHT:
             player.lives -= 1
             if player.lives == 0:
-                running = False
+                losing_menu()
             ball.started = False
             ball.y = player.y - 20
             ball.x = player.x + 30
         
 
 main()
+
+
+#TODO implement power ups
+#TODO implement level
+#TODO implement unbreakable bricks
