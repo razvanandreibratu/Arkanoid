@@ -3,6 +3,7 @@ import os
 import time
 import random
 
+
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Arkanoid")
