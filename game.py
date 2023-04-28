@@ -40,8 +40,13 @@ class Player:
         self.lives = lives
         self.player_img = PLAYER
         self.mask = pygame.mask.from_surface(self.player_img)
+        self._name = ""
     def draw(self, window):
         window.blit(self.player_img,(self.x, self.y))
+    def set_name(self, name):
+        self.name = name
+    def get_name(self):
+        return self.name
 
 class Ball:
     def __init__(self, x, y):
@@ -60,6 +65,7 @@ class Ball:
     def update_position(self):
         if not self.started:
             return
+        
         self.x += self.ball_vel_x
         self.y += self.ball_vel_y
 
@@ -77,6 +83,7 @@ class Ball:
                 elif isinstance(obj, Player):
                     self.ball_vel_y = -self.ball_vel_y
                     self.ball_vel_x = (self.x - obj.x) / (PLAYER_WIDTH / 2)
+
     def get_points(self):
         return self.points
 
@@ -145,7 +152,7 @@ def create_bricks():
             bricks.append(brick)
     return bricks
 #Game menus
-#TODO main menu
+#TODO main menu and take user input
 def main_menu():
     return
 #TODO pause menu 
@@ -213,9 +220,11 @@ def winner():
 def main():
     running = True
     player = Player(300, 550)
+    player.set_name("Viorel")
+
     ball = Ball(330, 530)
     bricks = create_bricks()
-
+    #Game objects are stored in a list
     GAME_OBJ.extend(bricks)
     GAME_OBJ.append(player)
     GAME_OBJ.append(ball)
@@ -236,8 +245,10 @@ def main():
 
     while running:
         clock.tick(FPS)
+        #Winning
         if len(GAME_OBJ) == 2:
-            running = False
+            running = winner()
+
         redraw_window()
     
         for event in pygame.event.get():
@@ -262,7 +273,7 @@ def main():
         if ball.y == HEIGHT - BALL_HEIGHT:
             player.lives -= 1
             if player.lives == 0:
-                running = losing_menu(ball.get_points(), "Dorel")
+                running = losing_menu(ball.get_points(), player.get_name())
                 running = False
             ball.started = False
             ball.y = player.y - 20
