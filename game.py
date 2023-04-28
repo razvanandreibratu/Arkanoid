@@ -152,15 +152,19 @@ def main_menu():
 def pause_menu(points):
     game_pause = True
     pause_font = pygame.font.SysFont("Comicsans", 50)
+
     def draw():
        screen.blit(BG,(0,0))
        pause_label_points = pause_font.render(f"POINTS: {points}", 1, WHITE)
-       screen.blit(pause_label_points, (250,100))       
+       screen.blit(pause_label_points, (250,100))   
+
        pause_label_continue = pause_font.render("Press space to continue...", 1, WHITE)
        screen.blit(pause_label_continue, (100, 220))
+
        pause_label_exit = pause_font.render("Exit", 1, WHITE)
        screen.blit(pause_label_exit, (330,400))
        pygame.display.update()
+
     while game_pause:
         draw()
         clock.tick(FPS)
@@ -171,14 +175,39 @@ def pause_menu(points):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_pause = False
-                    return True
+                    return not game_pause
 
 #TODO losing screen and points
-def losing_menu():
-    return
+def losing_menu(points, name):
+    #TODO implement a loser background
+    loser = True
+    loser_font = pygame.font.SysFont("Comicsans", 50)
+    def draw():
+        screen.blit(BG, (0, 0))
+
+        losing_label_points = loser_font.render(f"Points: {points}", 1, WHITE)
+        screen.blit(losing_label_points, (250, 100))
+        losing_label_name = loser_font.render(f"You lost: {name}", 1, WHITE)
+        screen.blit(losing_label_name, (100, 220))
+
+        pygame.display.update()
+
+    while loser:
+        draw()
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                loser = False
+                return loser
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_i:
+                    loser = False
+                    return not loser
+                    
+
 #TODO handling winning action
 def winner():
-    return
+    pass
 
 #Game main functions
 def main():
@@ -233,7 +262,8 @@ def main():
         if ball.y == HEIGHT - BALL_HEIGHT:
             player.lives -= 1
             if player.lives == 0:
-                losing_menu()
+                running = losing_menu(ball.get_points(), "Dorel")
+                running = False
             ball.started = False
             ball.y = player.y - 20
             ball.x = player.x + 30
@@ -241,7 +271,8 @@ def main():
 
 main()
 
-
+#TODO implement highscore
+#TODO implement music
 #TODO implement power ups
 #TODO implement level
 #TODO implement unbreakable bricks
