@@ -2,11 +2,15 @@ import pygame
 import os
 import time
 import random
+import pygame_menu
 
 
+#Pygame initialization
 pygame.font.init()
 pygame.init()
+pygame.mixer.music.load(os.path.join("data", "music.mp3"))
 pygame.display.set_caption("Arkanoid")
+
 #Game constants:
 WIDTH,HEIGHT = 800, 600
 FPS = 60
@@ -155,7 +159,7 @@ def create_bricks():
 #Game menus
 #TODO main menu and take user input
 def main_menu():
-    return
+    return " "
 #TODO pause menu 
 def pause_menu(points):
     game_pause = True
@@ -217,14 +221,20 @@ def losing_menu(points, name):
 def winner():
     pass
 
+#Music player
+def music_player():
+    pygame.mixer.music.play()
+
 #Game main functions
 def main():
     running = True
+    #Player 
     player = Player(300, 550)
-    player.set_name("Viorel")
-
+    player.set_name("Dorel")
     ball = Ball(330, 530)
     bricks = create_bricks()
+    #Music player
+    music_player()
     #Game objects are stored in a list
     GAME_OBJ.extend(bricks)
     GAME_OBJ.append(player)
@@ -245,7 +255,9 @@ def main():
         
 
     while running:
+        #Refresh rate
         clock.tick(FPS)
+        
         #Winning
         if len(GAME_OBJ) == 2:
             running = winner()
