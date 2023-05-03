@@ -169,13 +169,27 @@ def main_menu():
     HEIGHT,
     theme=pygame_menu.themes.THEME_BLUE,
     )
-
-    
+    #Buttons of the main menu
     user_name = menu.add.text_input('Name: ', default = '', maxchar=10)
     menu.add.button('Play', main)
-    menu.add.button('Options', pause_menu, 0)
+    menu.add.button('Options', options_menu)
     menu.add.button('Quit', pygame_menu.events.EXIT)
     menu.mainloop(screen)
+
+def options_menu():
+    options_menu = pygame_menu.Menu(
+        'Options', 
+        WIDTH, 
+        HEIGHT, 
+        theme=pygame_menu.themes.THEME_BLUE
+    )
+    options_menu.add.range_slider('Volume: ', default=50, range_values=(0, 100), increment=1, onchange=set_music_volume)
+    options_menu.add.button('Back', main_menu)
+    options_menu.mainloop(screen)
+
+def set_music_volume(value):
+    # Set the music volume based on the slider value
+    pygame.mixer.music.set_volume(value)
 
 # pause menu 
 def pause_menu(points):
@@ -317,6 +331,7 @@ def main():
 
 
 if __name__ == "__main__":
+    music_player()
     main_menu()
 
 #TODO: implement highscore
@@ -324,3 +339,4 @@ if __name__ == "__main__":
 #TODO: implement power ups
 #TODO: implement level
 #TODO: implement unbreakable bricks
+#TODO: implement rest function!!!!
