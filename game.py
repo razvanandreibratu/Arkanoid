@@ -189,7 +189,7 @@ def options_menu():
 
 def set_music_volume(value):
     # Set the music volume based on the slider value
-    pygame.mixer.music.set_volume(value)
+    pygame.mixer.music.set_volume(value / 100)
 
 # pause menu 
 def pause_menu(points):
