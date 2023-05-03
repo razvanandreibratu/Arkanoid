@@ -4,10 +4,9 @@ import time
 import random
 import pygame_menu
 
-
 #Pygame initialization
-pygame.font.init()
 pygame.init()
+pygame.font.init()
 pygame.mixer.music.load(os.path.join("data", "music.mp3"))
 pygame.display.set_caption("Arkanoid")
 
@@ -61,6 +60,7 @@ class Ball:
         self.mask = pygame.mask.from_surface(self.ball_img)
         self.ball_vel_x = 4
         self.ball_vel_y = 5
+        self.speed = 2
         self.points = 0
         self.started = False
 
@@ -74,9 +74,9 @@ class Ball:
         self.x += self.ball_vel_x
         self.y += self.ball_vel_y
 
-        if self.x < 0 or self.x > WIDTH - BALL_WIDTH:
+        if self.x < 0 or abs(self.x) > WIDTH - BALL_WIDTH:
             self.ball_vel_x = -self.ball_vel_x
-        if self.y < 0 or self.y > HEIGHT - BALL_HEIGHT:
+        if self.y < 0 or abs(self.y) > HEIGHT - BALL_HEIGHT:
             self.ball_vel_y = -self.ball_vel_y
 
         for obj in GAME_OBJ:
@@ -157,10 +157,27 @@ def create_bricks():
             bricks.append(brick)
     return bricks
 #Game menus
-#TODO main menu and take user input
+# main menu and take user input
 def main_menu():
-    return " "
-#TODO pause menu 
+    #Global user name variable for the users name
+    global user_name 
+
+    #Menu of the game
+    menu = pygame_menu.Menu(
+    'Arkanoid Game',
+    WIDTH,
+    HEIGHT,
+    theme=pygame_menu.themes.THEME_BLUE,
+    )
+
+    
+    user_name = menu.add.text_input('Name: ', default = '', maxchar=10)
+    menu.add.button('Play', main)
+    menu.add.button('Options', pause_menu, 0)
+    menu.add.button('Quit', pygame_menu.events.EXIT)
+    menu.mainloop(screen)
+
+# pause menu 
 def pause_menu(points):
     game_pause = True
     pause_font = pygame.font.SysFont("Comicsans", 50)
@@ -189,9 +206,9 @@ def pause_menu(points):
                     game_pause = False
                     return not game_pause
 
-#TODO losing screen and points
+# losing screen and points
 def losing_menu(points, name):
-    #TODO implement a loser background
+    # implement a loser background
     loser = True
     loser_font = pygame.font.SysFont("Comicsans", 50)
     def draw():
@@ -217,7 +234,7 @@ def losing_menu(points, name):
                     return not loser
                     
 
-#TODO handling winning action
+#TODO: handling winning action
 def winner():
     pass
 
@@ -228,13 +245,17 @@ def music_player():
 #Game main functions
 def main():
     running = True
+
     #Player 
     player = Player(300, 550)
-    player.set_name("Dorel")
     ball = Ball(330, 530)
     bricks = create_bricks()
-    #Music player
-    music_player()
+
+    #Creating player from main menu
+    player.set_name(user_name.get_value())
+
+    #Starting the music player
+    #music_player()
     #Game objects are stored in a list
     GAME_OBJ.extend(bricks)
     GAME_OBJ.append(player)
@@ -282,21 +303,24 @@ def main():
         if keys[pygame.K_p]:
             running = pause_menu(ball.get_points())
 
-        #LOSING GAME LOGIC
+        #Losing a life logic
+        #Ball it's reseted to initial position
         if ball.y == HEIGHT - BALL_HEIGHT:
             player.lives -= 1
+            #Losing all lives means losing the game
             if player.lives == 0:
                 running = losing_menu(ball.get_points(), player.get_name())
                 running = False
             ball.started = False
             ball.y = player.y - 20
             ball.x = player.x + 30
-        
 
-main()
 
-#TODO implement highscore
-#TODO implement music
-#TODO implement power ups
-#TODO implement level
-#TODO implement unbreakable bricks
+if __name__ == "__main__":
+    main_menu()
+
+#TODO: implement highscore
+#: implement music
+#TODO: implement power ups
+#TODO: implement level
+#TODO: implement unbreakable bricks
